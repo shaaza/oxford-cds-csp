@@ -1,0 +1,23 @@
+channel coin, green, red, ticket, return, service
+
+Machine1 = coin -> (green -> ticket -> Machine1 [] red -> return -> Machine1)
+
+Machine2(storeCap, rollSize) = let
+  M2(coins, tickets, storeCap, rollSize) =  coins < storeCap and coins <= tickets and tickets > 0 & coin -> M2(coins+1, tickets, storeCap, rollSize)
+                                         [] coins > 0 and tickets >= coins                        & green -> ticket -> M2(0, tickets-coins, storeCap, rollSize)
+			                 [] coins > 0                                             & red -> return -> M2(0, tickets, storeCap, rollSize)
+                                         [] coins == 0                                            & service -> M2(0, rollSize, storeCap, rollSize) 
+  within
+    M2(0, rollSize, storeCap, rollSize)
+
+channel timeout
+
+Machine3(storeCap, rollSize) = let
+  M2(coins, tickets, storeCap, rollSize) =  coins < storeCap and coins <= tickets and tickets > 0 & coin -> M2(coins+1, tickets, storeCap, rollSize)
+                                         [] coins > 0 and tickets >= coins                        & green -> ticket -> M2(0, tickets-coins, storeCap, rollSize)
+					 [] coins > 0                                             & timeout -> return -> M2(0, tickets, storeCap, rollSize)
+					 [] coins > 0                                             & red -> return -> M2(0, tickets, storeCap, rollSize)
+                                         [] coins == 0                                            & service -> M2(0, rollSize, storeCap, rollSize)
+  within
+    M2(0, rollSize, storeCap, rollSize)
+  

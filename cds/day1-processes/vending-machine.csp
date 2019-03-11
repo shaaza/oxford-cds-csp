@@ -1,0 +1,13 @@
+channel coin, tea, coffee, refill
+OCM = coin -> coffee -> STOP
+OTM = coin -> tea -> STOP
+CM = coin -> coffee -> CM
+TM = coin -> tea -> TM
+VMA = coin -> (coffee -> VMA [] tea -> VMA)
+
+VM(coffeeCapacity, teaCapacity) = let		   	 	
+  cVM(c, t, cCap, tCap) = (c > 0 or t > 0) & coin -> (   c > 0 & coffee -> cVM(c-1, t, cCap, tCap)
+       	                                              [] t > 0 & tea    -> cVM(c, t-1, cCap, tCap))
+		          [] refill -> VM(coffeeCapacity, teaCapacity)
+  within 
+     cVM(coffeeCapacity, teaCapacity, coffeeCapacity, teaCapacity)
