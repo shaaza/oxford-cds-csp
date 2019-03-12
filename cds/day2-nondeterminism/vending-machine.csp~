@@ -1,4 +1,0 @@
-channel coin, tea, coffee
-
-NOVM = coin -> (tea -> STOP |~| coffee -> STOP)
-NVM = coin -> (tea -> NVM |~| coffee -> NVM)
