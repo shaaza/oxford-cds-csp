@@ -1,0 +1,28 @@
+--- EXERCISE 3.3
+channel coin, coffee, tea
+
+OVM = coin -> (coffee -> STOP [] tea -> STOP)
+
+-- Refines
+A = coin -> coffee -> STOP
+assert OVM [T= A
+
+-- Doesn't refine
+B = coin -> coffee -> tea -> STOP
+assert OVM [T= B
+
+-- Refines
+C = coin -> tea -> STOP
+assert OVM [T= C
+
+-- Doesn't refine
+D = coffee -> STOP
+assert OVM [T= D
+
+-- Refines
+E = coin -> STOP
+assert OVM [T= E
+
+-- Refines
+F = STOP
+assert OVM [T= F

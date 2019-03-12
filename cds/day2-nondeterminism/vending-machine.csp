@@ -1,0 +1,21 @@
+--- EXERCISE 3.1
+
+channel coin, tea, coffee
+
+NOVM = coin -> (tea -> STOP |~| coffee -> STOP)
+NVM = coin -> (tea -> NVM |~| coffee -> NVM)
+
+assert NOVM :[deadlock free]
+assert NVM :[deadlock free]
+
+CM = coin -> coffee -> CM
+TM = coin -> tea -> TM
+
+NVM2 = CM |~| TM
+
+
+--- CM |~| TM would choose one of CM or TM, and then it would remain a coffee machine, or a tea machine.
+--- NVM will always be a tea/coffee machine, but which one of those it gives you isn't deterministic
+assert NVM2 [F= NVM
+
+

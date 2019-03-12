@@ -1,0 +1,14 @@
+--- EXERCISE 3.2
+channel coin, green, red, ticket, return, service
+
+
+Machine4 = (coin -> (green -> ticket -> Machine4
+                    [] red -> return -> Machine4)
+	   [] service -> Machine4)	  
+       |~| service -> Machine4
+
+Machine5 = (coin -> ((green -> ticket -> Machine5 |~| red -> return -> Machine5) 
+                     [] red -> return -> Machine5)
+	   [] service -> Machine4)	  
+       |~| service -> Machine4
+
