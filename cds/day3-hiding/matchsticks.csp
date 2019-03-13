@@ -1,0 +1,43 @@
+MAXINT = 15
+PLAYERS = {0..1}
+MATCHES = {0..MAXINT}
+channel look: PLAYERS . MATCHES
+channel take: PLAYERS . MATCHES
+channel win: PLAYERS
+channel turn: PLAYERS
+channel gameOver
+
+min(a,b) = if a < b then a else b
+
+alphaMatches = {| take, look |}
+
+Matches =
+  let
+    M(matches) = 
+     	         look?p!matches -> M(matches)
+	      [] take?p?k:{0..matches} -> M(matches-k)
+  within
+    M(MAXINT)
+
+other(p) = 1 - p
+Player(p) =
+  let
+    MyTurn = look!p?n -> Look(n)
+    Look(n) = take!p?k:{1..3} -> YourTurn [] (n==0) & win!p -> STOP
+    YourTurn = take!other(p)?k -> MyTurn
+  within
+    if p == 0 then MyTurn else YourTurn
+
+alphaPlayer(p) = {| look.p, take, win.p |}
+
+Players = || p : {0..1} @ [alphaPlayer(p)] Player(p)
+
+Game = Players [| {| look, take |} |] Matches
+assert Game :[deadlock free]
+
+SomeoneWins =
+  win.0 -> STOP
+  |~|
+  win.1 -> STOP
+
+assert SomeoneWins [FD= Game \ {| look, take |}
