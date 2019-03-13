@@ -7,24 +7,38 @@ channel sit, stand: PHIL
 channel pickup, putdown : PHIL . FORK
 channel fetch, eat : PHIL
 
+
+-- Phil
 alphaPhil(p) = {| sit.p, stand.p, pickup.p.f, putdown.p.f, fetch.p, eat.p | f <- {p, (p+1)%5} |}
 
 Phil(i) = sit.i -> pickup.i.i -> pickup.i.((i+1)%5) -> fetch.i -> putdown.i.((i+1)%5) -> eat.i -> putdown.i.i -> stand.i -> Phil(i)
 
--- ii, iii, iv)
 Phils = || i : PHIL @ [alphaPhil(i)] Phil(i)
+
 assert Phils :[deadlock free]
 
+-- Fork
 alphaFork(i) = {| pickup.p.i, putdown.p.i | p <- {i, (i-1)%5}  |}
 
 Fork(f) = pickup?p!f -> putdown.p.f -> Fork(f)
 
 Forks = ||i : FORK @ [alphaFork(i)] Fork(i)
+
 assert Forks :[deadlock free]
 
--- v)
-System = Phils [| {| pickup.p.f, putdown.p.f | p <- {0..4}, f <- {p, (p+1)%5} |} |] Forks
+-- System
+sharedAlphabet = {| pickup.p.f, putdown.p.f | p <- PHIL, f <- {p, (p+1)%5} |}
+System = Phils [| sharedAlphabet |] Forks
 
 assert System :[deadlock free]
 
+-- Butler
 
+-- Alphabet only contains pickup your own fork, and putdown neighbour's fork - the two events that the butler synchronizes
+
+sharedNeighbourForkAlphabet = {| pickup.p.p, putdown.p.f | p <- PHIL, f <- {(p+1)%5} |}
+ButlerFree = pickup?p!p -> ButlerBusy(p)
+ButlerBusy(p) = putdown.p.(p+1)%5 -> ButlerFree
+
+ButleredSystem = ButlerFree [| sharedNeighbourForkAlphabet |] System
+assert ButleredSystem :[deadlock free]
