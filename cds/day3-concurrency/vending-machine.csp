@@ -1,0 +1,18 @@
+--- EXERCISE 4.1
+channel coin, tea, coffee
+
+aBet = { coin, tea, coffee }
+
+ND = coin -> (coffee -> ND |~| tea -> ND)
+
+NVM = coin -> (tea -> NVM |~| coffee -> NVM)
+CM = coin -> coffee -> CM
+TM = coin -> tea -> TM
+
+CMP = ND [ aBet || aBet ] CM
+TMP = ND [ aBet || aBet ] TM
+NVMP = ND [ aBet || aBet ] NVM
+
+assert NVMP :[deadlock free]
+assert CMP  :[deadlock free]
+assert TMP  :[deadlock free]

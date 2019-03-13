@@ -1,0 +1,30 @@
+--- EXERCISE 4.2
+
+-- i)
+PHIL = {0..4}
+FORK = {0..4}
+channel sit, stand: PHIL
+channel pickup, putdown : PHIL . FORK
+channel fetch, eat : PHIL
+
+alphaPhil(p) = {| sit.p, stand.p, pickup.p.f, putdown.p.f, fetch.p, eat.p | f <- {p, (p+1)%5} |}
+
+Phil(i) = sit.i -> pickup.i.i -> pickup.i.((i+1)%5) -> fetch.i -> putdown.i.((i+1)%5) -> eat.i -> putdown.i.i -> stand.i -> Phil(i)
+
+-- ii, iii, iv)
+Phils = || i : PHIL @ [alphaPhil(i)] Phil(i)
+assert Phils :[deadlock free]
+
+alphaFork(i) = {| pickup.p.i, putdown.p.i | p <- {i, (i-1)%5}  |}
+
+Fork(f) = pickup?p!f -> putdown.p.f -> Fork(f)
+
+Forks = ||i : FORK @ [alphaFork(i)] Fork(i)
+assert Forks :[deadlock free]
+
+-- v)
+System = Phils [| {| pickup.p.f, putdown.p.f | p <- {0..4}, f <- {p, (p+1)%5} |} |] Forks
+
+assert System :[deadlock free]
+
+
