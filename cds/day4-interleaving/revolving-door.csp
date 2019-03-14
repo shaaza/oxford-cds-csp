@@ -1,0 +1,21 @@
+channel turn, enterOutside, leaveOutside, enterInside, leaveInside
+Door =
+     let
+	OutsideFull = leaveOutside -> OutsideEmpty
+	OutsideEmpty = enterOutside -> turn -> TurningInFull
+		     [] turn -> TurningInEmpty
+	TurningInFull = turn -> InsideFull
+	TurningInEmpty = turn -> InsideEmpty
+	InsideFull = leaveInside -> InsideEmpty
+	InsideEmpty = enterInside -> turn -> TurningOutFull
+		    [] turn -> TurningOutEmpty
+	TurningOutFull = turn -> OutsideFull
+	TurningOutEmpty = turn -> OutsideEmpty
+     within
+	OutsideEmpty
+
+channel detectInside, detectOutside
+
+DoorController = detectInside -> turn -> turn -> turn -> turn -> DoorController
+              [] detectOutside -> turn -> turn -> turn -> turn -> DoorController
+

@@ -1,4 +1,4 @@
-maxNumber = 99
+maxNumber = 3
 Number = {0..maxNumber}
 channel display, serve, ticket : Number
 channel next
@@ -30,8 +30,17 @@ Office'' = (TicketMachine(0) [| ticketsAlpha |] Client)
        	 [| {| next, serve.n | n <- Number |}  |]
 	 (Display(0) [| {| next, display.n | n <- Number |} |] Clerk')
 
+
+MultiClientOffice = (TicketMachine(0) [| ticketsAlpha |] (Client ||| Client))
+       	 [| {| next, serve.n, display.n | n <- Number |}  |]
+	 (Display(0) [| {| next, display.n | n <- Number |} |] Clerk')
+
 CanLeaveIfEnters = enter -> leave -> CanLeaveIfEnters
+
+CanLeaveIfEntersMulti(x) = (x < maxNumber) & enter -> CanLeaveIfEntersMulti(x+1)
+			[] (x > 0) & leave -> CanLeaveIfEntersMulti(x-1)
 
 assert CanLeaveIfEnters [FD= Office \ {| display.n, serve.n, ticket.n, next | n <- Number |}
 assert CanLeaveIfEnters [FD= Office' \ {| display.n, serve.n, ticket.n, next | n <- Number |}
 assert CanLeaveIfEnters [FD= Office'' \ {| display.n, serve.n, ticket.n, next | n <- Number |}
+assert CanLeaveIfEntersMulti(0) [FD= MultiClientOffice \ {| display.n, serve.n, ticket.n, next | n <- Number |}
