@@ -1,0 +1,37 @@
+maxNumber = 99
+Number = {0..maxNumber}
+channel display, serve, ticket : Number
+channel next
+channel enter, leave
+
+TicketMachine(x) = ticket.x -> TicketMachine((x+1)%(maxNumber+1))
+
+Display(x) = display.x -> next -> Display((x+1)%(maxNumber+1))
+
+Clerk = serve?x -> next -> Clerk
+
+Client = enter -> ticket?x -> display.x -> serve.x -> next -> leave -> Client
+
+ticketsAlpha = {| ticket.n | n <- Number |}
+
+Office = (TicketMachine(0)[| ticketsAlpha |] Client)
+       	 [| {| next, serve.n, display.n | n <- Number |}  |]
+	 (Display(0) [| {| next |} |] Clerk)
+
+Clerk' = display?x -> serve.x -> next -> Clerk'
+
+Office' = (TicketMachine(0) [| ticketsAlpha |] Client)
+       	 [| {| next, serve.n, display.n | n <- Number |}  |]
+	 (Display(0) [| {| next, display.n | n <- Number |} |] Clerk')
+
+assert Office' :[deadlock free]
+
+Office'' = (TicketMachine(0) [| ticketsAlpha |] Client)
+       	 [| {| next, serve.n | n <- Number |}  |]
+	 (Display(0) [| {| next, display.n | n <- Number |} |] Clerk')
+
+CanLeaveIfEnters = enter -> leave -> CanLeaveIfEnters
+
+assert CanLeaveIfEnters [FD= Office \ {| display.n, serve.n, ticket.n, next | n <- Number |}
+assert CanLeaveIfEnters [FD= Office' \ {| display.n, serve.n, ticket.n, next | n <- Number |}
+assert CanLeaveIfEnters [FD= Office'' \ {| display.n, serve.n, ticket.n, next | n <- Number |}
