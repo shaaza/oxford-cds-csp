@@ -1,0 +1,17 @@
+channel high, low, fire, cancel, hs, ls, hb, lb
+
+System = SetLow; Ready
+
+Ready = high -> High [] low -> Low
+
+High = (HighTreatment /\ cancel -> SKIP) ; Ready
+
+HighTreatment = SetHigh; fire -> SetLow
+
+SetHigh = hs -> SKIP [{hs} || {hb}] hb -> SKIP
+
+SetLow = ls -> SKIP [{ls} || {lb}] lb -> SKIP
+
+Low = (LowTreatment /\ cancel -> SKIP); Ready
+
+LowTreatment = fire -> SKIP

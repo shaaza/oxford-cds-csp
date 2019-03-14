@@ -1,0 +1,166 @@
+channel high, low, fire, cancel
+channel hb, lb, hs, ls
+
+
+-- doesn't contain hb 
+shieldLoweredAlphabet = { high, low, fire, cancel, ls, lb }
+
+
+-- doesn't contain ls
+alphabet = {high, low, fire, cancel, hb, lb, hs }
+
+AfterShieldLowered = [] e: shieldLoweredAlphabet @ e -> AfterShieldLowered
+                     [] hs -> Spec
+		     
+Spec = ls -> AfterShieldLowered
+     [] ([] e: alphabet @ e -> Spec)
+
+
+
+System =
+  SetLow; Ready
+
+Ready =
+  high -> High [] low -> Low
+
+High =
+  (HighTreatment /\ cancel -> SKIP) ; Ready
+
+HighTreatment =
+  SetHigh; fire -> SetLow
+
+SetHigh =
+  hs -> SKIP [{hs} || {hb}] hb -> SKIP
+
+SetLow =
+  ls -> SKIP [{ls} || {lb}] lb -> SKIP
+
+Low =
+  (LowTreatment /\ cancel -> SKIP); Ready
+
+LowTreatment =
+  fire -> SKIP
+
+Spec2 = hs -> hb -> Spec2
+
+assert Spec [T= System
+
+-- BothLow, BeamHighShieldLow, BothHigh, ShieldHighBeamLow
+
+alphabet2 = { cancel, high, low }
+Safe =
+  let
+    BothHigh =
+      hs -> BothHigh
+      []
+      hb -> BothHigh
+      []
+      ls -> ShiedLowBeamHigh
+      []
+      lb -> ShieldHighBeamLow
+      []
+      fire -> BothHigh
+      []
+      ([] e: alphabet2 @ e -> BothHigh)
+
+    ShieldLowBeamHigh =
+      hs -> BothHigh
+      []
+      hb -> ShieldLowBeamHigh
+      []
+      ls -> ShieldLowBeamHigh
+      []
+      lb -> BothLow
+       []
+      ([] e: alphabet2 @ e -> ShieldLowBeamHigh)
+
+
+    ShieldHighBeamLow =
+      hs -> ShieldHighBeamLow 
+      []
+      hb -> BothHigh
+      []
+      ls -> BothLow
+      []
+      lb -> ShieldHighBeamLow
+      []
+      ([] e: alphabet2 @ e -> ShieldHighBeamLow)
+
+    BothLow =
+      hs -> ShieldHighBeamLow
+      []
+      hb -> ShiedLowBeamHigh
+      []
+      ls -> BothLow
+      []
+      lb -> BothLow
+      []
+      fire -> BothLow
+      []
+      ([] e: alphabet2 @ e -> BothLow)
+
+    within 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--- OLD
+
+SafeAccelerator =
+  let
+	HighFiring = cancel -> lb -> ls -> LowSelected
+	HighSelected = fire -> hb -> HighFiring
+	            [] cancel -> LowSelected
+		    [] high -> HighSelected
+		    [] low -> LowSelected	
+
+	LowFiring = cancel -> LowSelected 
+	LowSelected = fire -> lb -> LowFiring
+	           [] cancel -> LowSelected
+		   [] high -> hs -> HighSelected
+		   [] low -> LowSelected	
+  within
+	Ready
+
+
+
+--hs -> hb -> Spec
+--       ls -> ([] e : allowedEventsAfterShieldLowered @ e -> Spec)
+--    [] ([] x: ignoredAlphabet @ x -> Spec)
+
